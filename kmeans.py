@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import time
+from sklearn.cluster import k_means
 
 class kmeans(object):
 
@@ -57,17 +58,27 @@ data_c=[[np.random.random()*1000, np.random.random()*1000] for i in range(5)]
 data=[]
 
 for i,j in data_c:
-    for t in range(10000):
-        data+=[[i*np.random.normal(1,0.5),j*np.random.normal(1,0.5)]]
+    for t in range(50000):
+        data+=[[i*np.random.normal(1,0.2),j*np.random.normal(1,0.2)]]
 
 np.random.shuffle(data)
 
+c=[data[int(np.random.random()*(len(data)-1))] for i in range(5)]
+
 k=kmeans()
 print('start')
-start=time.time()
-c,dl=k.fit(data,c='random',cnum=5)
-print(time.time()-start)
 
-print(data_c)
-print(c)
+start=time.time()
+cc,dl,_=k_means(data,5,max_iter=10000,init='random')
+print(time.time()-start)
+print(cc)
 print(dl)
+
+start=time.time()
+cc,dl=k.fit(data,c='random',cnum=5)
+print(time.time()-start)
+print(cc)
+print(dl)
+
+print(np.array(data_c))
+
