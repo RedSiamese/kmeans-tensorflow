@@ -21,9 +21,10 @@ class kmeans(object):
 
     def predict(self, data, c):
 
-        assert type(data) is list or type(data) is np.array
+        assert type(data) is list or type(data) is np.array, 'Input data must be a list or an array'
+        assert len(np.shape(data))>1, 'Input data shape must be at least 2-D'
         data = np.reshape(data,[-1,np.prod(np.shape(data)[1:])])
-        assert type(c) is list or type(data) is np.array or type(data) is str
+        assert type(c) is list or type(data) is np.array, 'Input c must be a list or an array'
         c = np.reshape(c,[-1,np.prod(np.shape(c)[1:])])
 
         dl=None
@@ -33,13 +34,13 @@ class kmeans(object):
 
     def fit(self, data, c, times_limit=-1, cnum=None):
 
-        assert type(data) is list or type(data) is np.array
+        assert type(data) is list or type(data) is np.array, 'Input data must be a list or an array'
+        assert len(np.shape(data))>1, 'Input data shape must be at least 2-D'
         data = np.reshape(data,[-1,np.prod(np.shape(data)[1:])])
-        assert type(c) is list or type(data) is np.array
-        if type(c) is str:
-            if c=='random':
-                assert type(cnum) is int
-                c=[data[int(np.random.random()*(len(data)-1))] for i in range(cnum)]
+        assert type(c) is list or type(data) is np.array or type(data) is str, 'Input c must be a list or an array or \'random\''
+        if type(c) is str and c is 'random':
+            assert type(cnum) is int, 'Input cnum must be an int'
+            c=[data[int(np.random.random()*(len(data)-1))] for i in range(cnum)]
         else:
             c = np.reshape(c,[-1,np.prod(np.shape(c)[1:])])
 
