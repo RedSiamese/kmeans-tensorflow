@@ -1,7 +1,9 @@
 import tensorflow as tf
 import numpy as np
+
 import time
-from sklearn.cluster import k_means
+from tensorflow.examples.tutorials.mnist import input_data
+import cv2
 
 class kmeans(object):
 
@@ -22,10 +24,10 @@ class kmeans(object):
 
     def predict(self, data, c):
 
-        assert type(data) in [list, np.array], 'Input data must be a list or an array'
+        assert type(data) in [list, np.array, np.ndarray], 'Input data must be a list or an array'
         assert len(np.shape(data))>1, 'Input data shape must be at least 2-D'
         data = np.reshape(data,[-1,np.prod(np.shape(data)[1:])])
-        assert type(c) in [list, np.array], 'Input c must be a list or an array'
+        assert type(c) in [list, np.array, np.ndarray], 'Input c must be a list or an array'
         c = np.reshape(c,[-1,np.prod(np.shape(c)[1:])])
 
         dl=None
@@ -35,10 +37,10 @@ class kmeans(object):
 
     def fit(self, data, c, times_limit=-1, cnum=None):
 
-        assert type(data) in [list, np.array], 'Input data must be a list or an array'
+        assert type(data) in [list, np.array, np.ndarray], 'Input data must be a list or an array'
         assert len(np.shape(data))>1, 'Input data shape must be at least 2-D'
         data = np.reshape(data,[-1,np.prod(np.shape(data)[1:])])
-        assert type(c) in [list, np.array, str], 'Input c must be a list or an array or \'random\''
+        assert type(c) in [list, np.array, np.ndarray, str], 'Input c must be a list or an array or \'random\''
         if type(c) is str and c is 'random':
             assert type(cnum) is int, 'Input cnum must be an int'
             c=[data[int(np.random.random()*(len(data)-1))] for i in range(cnum)]
@@ -54,31 +56,24 @@ class kmeans(object):
     
 
 
-data_c=[[np.random.random()*1000, np.random.random()*1000] for i in range(5)]
-data=[]
 
-for i,j in data_c:
-    for t in range(50000):
-        data+=[[i*np.random.normal(1,0.2),j*np.random.normal(1,0.2)]]
 
-np.random.shuffle(data)
-
-c=[data[int(np.random.random()*(len(data)-1))] for i in range(5)]
+data=input_data.read_data_sets("./MNIST", one_hot=True).test.images[0:1000,:]
 
 k=kmeans()
 print('start')
 
 start=time.time()
-cc,dl,_=k_means(data,5,max_iter=10000,init='random')
+cc,dl=k.fit(np.array(data),c='random',cnum=10)
 print(time.time()-start)
-print(cc)
-print(dl)
 
-start=time.time()
-cc,dl=k.fit(data,c='random',cnum=5)
-print(time.time()-start)
-print(cc)
-print(dl)
-
-print(np.array(data_c))
+for i in range(10):
+    img=np.reshape(cc[i],(28,28))
+    cv2.imshow('0',img)
+    cv2.waitKey()
+    for j in range(500):
+        if dl[j]==i:
+            img=data[j].reshape((28,28))
+            cv2.imshow('1',img)
+            cv2.waitKey()  
 
