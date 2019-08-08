@@ -5,6 +5,8 @@ import time
 from tensorflow.examples.tutorials.mnist import input_data
 import cv2
 
+from sklearn.cluster import k_means
+
 class kmeans(object):
 
     def __init__(self):
@@ -21,6 +23,7 @@ class kmeans(object):
         dis=tf.to_float(tf.equal(dis-tf.expand_dims(tf.reduce_min(dis,1),1), 0.))
         self.laber=tf.argmax(dis,1)
         self.fcl=tf.matmul(tf.div(dis,tf.reduce_sum(dis,0)),self.x,True)
+        self.stop_flag=tf.reduce_sum(self.fcl-self.cl)
 
     def predict(self, data, c):
 
@@ -43,15 +46,16 @@ class kmeans(object):
         assert type(c) in [list, np.array, np.ndarray, str], 'Input c must be a list or an array or \'random\''
         if type(c) is str and c is 'random':
             assert type(cnum) is int, 'Input cnum must be an int'
-            c=[data[int(np.random.random()*(len(data)-1))] for i in range(cnum)]
+            indices=np.random.choice(len(data),cnum,replace=False)
+            c = data[indices, :]
         else:
             c = np.reshape(c,[-1,np.prod(np.shape(c)[1:])])
 
-        nc,c,dl,times = c,None,None,0
-        while (not np.all(np.equal(np.array(nc),np.array(c)))) and (times_limit==-1 or times<times_limit):
-            c, times = nc, times+1
-            with tf.Session() as sess:
-                nc,dl=sess.run([self.fcl,self.laber],feed_dict={self.x:data,self.cl:nc})
+        nc,c,dl,times,sf = c,None,None,0,1
+        with tf.Session() as sess:
+            while sf!=0. and (times_limit==-1 or times<times_limit):
+                times = times+1
+                nc,dl,sf=sess.run([self.fcl,self.laber,self.stop_flag],feed_dict={self.x:data,self.cl:nc})
         return nc,dl
     
 
@@ -64,8 +68,14 @@ k=kmeans()
 print('start')
 
 start=time.time()
+cc,dl,_=k_means(np.array(data),10,max_iter=10000,init='random')
+print(time.time()-start)
+
+start=time.time()
 cc,dl=k.fit(np.array(data),c='random',cnum=10)
 print(time.time()-start)
+
+
 
 for i in range(10):
     img=np.reshape(cc[i],(28,28))
